@@ -16,7 +16,7 @@
 
 按 `⌘⇧Space` 唤出，覆盖在全屏视频之上，不切换当前 App，不暂停播放。
 
-![VideoNotes 悬浮输入框](docs/screenshot-input-cropped.png)
+![VideoNotes 悬浮输入框](docs/screenshot-input.png)
 
 > 输入完按 `Enter` 自动复制到剪贴板并保存，`Shift+Enter` 换行，`Esc` 关闭。2 秒完成一次记录。
 
@@ -24,7 +24,7 @@
 
 按 `⌘⇧H` 打开笔记历史，支持全文搜索、时间分组、一键复制、Markdown 导出。
 
-![VideoNotes 历史记录](docs/screenshot-history-cropped.png)
+![VideoNotes 历史记录](docs/screenshot-history.png)
 
 > 所有笔记仅存储在本机应用容器中，不上云、不跟踪、不分析。
 
