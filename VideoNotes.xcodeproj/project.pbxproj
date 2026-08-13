@@ -1,0 +1,361 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+/* Begin PBXBuildFile section */
+		AA000001 /* VideoNotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100001; };
+		AA000002 /* GlobalHotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100002; };
+		AA000003 /* FloatingInputWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100003; };
+		AA000004 /* FloatingInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100004; };
+		AA000005 /* ClipboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100005; };
+		AA000007 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100007; };
+		AA000008 /* NoteRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100008; };
+		AA000009 /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100009; };
+		AA000010 /* AISummarizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100010; };
+		AA000011 /* ReviewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100011; };
+		AA000012 /* WeChatPusher.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100012; };
+		AA000013 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100013; };
+		AA000014 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA200003; };
+		AA000015 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = AA200004; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AA100001 /* VideoNotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoNotesApp.swift; sourceTree = "<group>"; };
+		AA100002 /* GlobalHotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotkeyManager.swift; sourceTree = "<group>"; };
+		AA100003 /* FloatingInputWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingInputWindow.swift; sourceTree = "<group>"; };
+		AA100004 /* FloatingInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingInputView.swift; sourceTree = "<group>"; };
+		AA100005 /* ClipboardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardManager.swift; sourceTree = "<group>"; };
+		AA100007 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		AA100008 /* NoteRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRecord.swift; sourceTree = "<group>"; };
+		AA100009 /* HistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStore.swift; sourceTree = "<group>"; };
+		AA100010 /* AISummarizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AISummarizer.swift; sourceTree = "<group>"; };
+		AA100011 /* ReviewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewManager.swift; sourceTree = "<group>"; };
+		AA100012 /* WeChatPusher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeChatPusher.swift; sourceTree = "<group>"; };
+		AA100013 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		AA200000 /* VideoNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA200001 /* VideoNotes.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VideoNotes.entitlements; sourceTree = "<group>"; };
+		AA200002 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AA200003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AA200004 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		AA300000 = {
+			isa = PBXGroup;
+			children = (
+				AA300001 /* VideoNotes */,
+				AA300009 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AA300009 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AA200000 /* VideoNotes.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AA300001 /* VideoNotes */ = {
+			isa = PBXGroup;
+			children = (
+				AA300002 /* App */,
+				AA300003 /* Hotkey */,
+				AA300004 /* Window */,
+				AA300005 /* Clipboard */,
+				AA300006 /* History */,
+				AA300008 /* Models */,
+				AA300010 /* Stores */,
+				AA300011 /* AI */,
+				AA300012 /* WeChat */,
+				AA300013 /* Settings */,
+				AA300007 /* Assets */,
+				AA200002 /* Info.plist */,
+				AA200001 /* VideoNotes.entitlements */,
+				AA200004 /* PrivacyInfo.xcprivacy */,
+			);
+			path = VideoNotes;
+			sourceTree = "<group>";
+		};
+		AA300002 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				AA100001 /* VideoNotesApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		AA300003 /* Hotkey */ = {
+			isa = PBXGroup;
+			children = (
+				AA100002 /* GlobalHotkeyManager.swift */,
+			);
+			path = Hotkey;
+			sourceTree = "<group>";
+		};
+		AA300004 /* Window */ = {
+			isa = PBXGroup;
+			children = (
+				AA100003 /* FloatingInputWindow.swift */,
+				AA100004 /* FloatingInputView.swift */,
+			);
+			path = Window;
+			sourceTree = "<group>";
+		};
+		AA300005 /* Clipboard */ = {
+			isa = PBXGroup;
+			children = (
+				AA100005 /* ClipboardManager.swift */,
+			);
+			path = Clipboard;
+			sourceTree = "<group>";
+		};
+		AA300006 /* History */ = {
+			isa = PBXGroup;
+			children = (
+				AA100007 /* HistoryView.swift */,
+			);
+			path = History;
+			sourceTree = "<group>";
+		};
+		AA300007 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				AA200003 /* Assets.xcassets */,
+			);
+			path = Assets;
+			sourceTree = "<group>";
+		};
+		AA300008 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				AA100008 /* NoteRecord.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		AA300010 /* Stores */ = {
+			isa = PBXGroup;
+			children = (
+				AA100009 /* HistoryStore.swift */,
+			);
+			path = Stores;
+			sourceTree = "<group>";
+		};
+		AA300011 /* AI */ = {
+			isa = PBXGroup;
+			children = (
+				AA100010 /* AISummarizer.swift */,
+				AA100011 /* ReviewManager.swift */,
+			);
+			path = AI;
+			sourceTree = "<group>";
+		};
+		AA300012 /* WeChat */ = {
+			isa = PBXGroup;
+			children = (
+				AA100012 /* WeChatPusher.swift */,
+			);
+			path = WeChat;
+			sourceTree = "<group>";
+		};
+		AA300013 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				AA100013 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AA400000 /* VideoNotes */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA500010;
+			buildPhases = (
+				AA400001 /* Sources */,
+				AA400002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VideoNotes;
+			productName = VideoNotes;
+			productReference = AA200000;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AA600000 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+			};
+			buildConfigurationList = AA500000;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = "zh-Hans";
+			hasScannedForEncodings = 0;
+			knownRegions = ("zh-Hans", Base);
+			mainGroup = AA300000;
+			productRefGroup = AA300009;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AA400000 /* VideoNotes */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AA400002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA000014 /* Assets.xcassets in Resources */,
+				AA000015 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AA400001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA000001 /* VideoNotesApp.swift in Sources */,
+				AA000002 /* GlobalHotkeyManager.swift in Sources */,
+				AA000003 /* FloatingInputWindow.swift in Sources */,
+				AA000004 /* FloatingInputView.swift in Sources */,
+				AA000005 /* ClipboardManager.swift in Sources */,
+				AA000007 /* HistoryView.swift in Sources */,
+				AA000008 /* NoteRecord.swift in Sources */,
+				AA000009 /* HistoryStore.swift in Sources */,
+				AA000010 /* AISummarizer.swift in Sources */,
+				AA000011 /* ReviewManager.swift in Sources */,
+				AA000012 /* WeChatPusher.swift in Sources */,
+				AA000013 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AA500001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AA500002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		AA500003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = VideoNotes/VideoNotes.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VideoNotes/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.videonotes.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AA500004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = VideoNotes/VideoNotes.entitlements;
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VideoNotes/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.videonotes.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AA500000 /* Build configuration list for PBXProject */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA500001 /* Debug */,
+				AA500002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA500010 /* Build configuration list for PBXNativeTarget */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA500003 /* Debug */,
+				AA500004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AA600000;
+}
