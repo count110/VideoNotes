@@ -20,7 +20,8 @@
 
 使用现有 api.lwgsjc.online HTTPS 服务的 /videonotes/ 路径，不新增监听端口。
 通过已登录的阿里云命令助手，以 root 运行 `deploy/aliyun.sh <完整提交 SHA>`。
-脚本从 GitHub 按固定提交下载源码、核对静态文件 SHA-256、只发布运行需要的五个文件，并保留配置备份和旧版本。
+可追加本机已上传的发布包路径和 SHA-256，绕过服务器无法访问 GitHub 的情况；发布包顶层目录必须是 VideoNotes-<SHA>/website。
+脚本从 GitHub 按固定提交下载源码（或校验提供的发布包）、核对静态文件 SHA-256、只发布运行需要的五个文件，并保留配置备份和旧版本。
 服务器目录为 /opt/videonotes-web/releases/<SHA>，current 指向在线版本。
 配置位于 /etc/paper-checker/nginx.conf；修改前后检查配置与原 /health。现有 /api/ 路由保留。
 

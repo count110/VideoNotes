@@ -13,7 +13,13 @@ install -d -m 755 "$base/releases" "$base/backups"
 release="$base/releases/$sha"
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
-curl --fail --location --retry 2 --max-time 180 "https://codeload.github.com/count110/VideoNotes/tar.gz/$sha" -o "$tmp/source.tar.gz"
+if [[ -n "${2:-}" ]]; then
+    [[ "${3:-}" =~ ^[a-f0-9]{64}$ ]] || { echo 'Supply archive SHA-256'; exit 1; }
+    printf '%s  %s\n' "$3" "$2" | sha256sum -c -
+    cp "$2" "$tmp/source.tar.gz"
+else
+    curl --fail --location --retry 2 --max-time 180 "https://codeload.github.com/count110/VideoNotes/tar.gz/$sha" -o "$tmp/source.tar.gz"
+fi
 tar -xzf "$tmp/source.tar.gz" -C "$tmp" "VideoNotes-$sha/website"
 site="$tmp/VideoNotes-$sha/website"
 (cd "$site" && sha256sum -c manifest.sha256)
