@@ -65,6 +65,11 @@ if ! nginx -t -c "$config"; then rollback; exit 1; fi
 ln -sfn "$release" "$base/current.next"
 mv -Tf "$base/current.next" "$base/current"
 if ! systemctl reload paper-checker-proxy; then rollback; exit 1; fi
-if ! curl -fsS --resolve api.lwgsjc.online:443:127.0.0.1 https://api.lwgsjc.online/videonotes/version.txt | grep -Fx "$sha"; then rollback; exit 1; fi
+verified=0
+for attempt in 1 2 3 4 5 6 7 8 9 10; do
+    if curl -fsS --resolve api.lwgsjc.online:443:127.0.0.1 https://api.lwgsjc.online/videonotes/version.txt | grep -Fx "$sha"; then verified=1; break; fi
+    sleep 1
+done
+if [[ "$verified" != 1 ]]; then rollback; exit 1; fi
 if ! curl -fsS --resolve api.lwgsjc.online:443:127.0.0.1 https://api.lwgsjc.online/health; then rollback; exit 1; fi
 printf '\nDEPLOY_OK %s\nBACKUP %s\nPREVIOUS %s\n' "$sha" "$backup" "$previous"
