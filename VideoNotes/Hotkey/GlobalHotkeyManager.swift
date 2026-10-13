@@ -11,8 +11,8 @@ protocol GlobalHotkeyDelegate: AnyObject {
 
 /// 快捷键类型
 enum HotkeyKind {
-    case toggleInput   // ⌘⇧Space — 唤出/关闭输入框
-    case showHistory   // ⌘⇧H    — 打开历史记录
+    case toggleInput          // ⌘⇧Space — 唤出/关闭输入框
+    case showHistory          // ⌘⇧H    — 打开历史记录
 }
 
 // MARK: - HotkeyConfig
@@ -35,6 +35,7 @@ struct HotkeyConfig {
         modifiers: UInt32(cmdKey | shiftKey),
         kind: .showHistory
     )
+
 }
 
 // MARK: - GlobalHotkeyManager
@@ -52,6 +53,7 @@ final class GlobalHotkeyManager {
 
     private var hotkeyRefs: [HotkeyKind: EventHotKeyRef] = [:]
     private var eventHandler: EventHandlerRef?
+    private var lastToggleEventAt: TimeInterval = 0
 
     // MARK: Register / Unregister
 
@@ -151,6 +153,15 @@ final class GlobalHotkeyManager {
         NSLog("🔑 [VN] hotkey fired, id=\(hotkeyId.id)")
         switch hotkeyId.id {
         case 1:
+            // Carbon can emit a repeat when the shortcut is held for a moment.
+            // A second toggle would immediately close the editor that just
+            // appeared, which feels like an input interruption.
+            let now = ProcessInfo.processInfo.systemUptime
+            guard now - lastToggleEventAt >= 0.28 else {
+                NSLog("🔑 [VN] ignored repeated toggle hotkey")
+                return
+            }
+            lastToggleEventAt = now
             NSLog("🔑 [VN] → toggleInput")
             delegate?.hotkeyTriggered(kind: .toggleInput)
         case 2:

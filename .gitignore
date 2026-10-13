@@ -25,3 +25,11 @@ VideoNotes/work/
 # Miscellaneous
 *.log
 *.zip
+
+# Dependencies and private runtime configuration
+node_modules/
+.env
+.env.*
+!.env.example
+VideoNotes/Relay/data/
+*.videonotesbackup

@@ -6,6 +6,7 @@
 	objectVersion = 56;
 	objects = {
 /* Begin PBXBuildFile section */
+		AF000001 /* MathJax in Resources */ = {isa = PBXBuildFile; fileRef = AF100001; };
 		AA000001 /* VideoNotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100001; };
 		AA000002 /* GlobalHotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100002; };
 		AA000003 /* FloatingInputWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100003; };
@@ -16,13 +17,63 @@
 		AA000009 /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100009; };
 		AA000010 /* AISummarizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100010; };
 		AA000011 /* ReviewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100011; };
-		AA000012 /* WeChatPusher.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100012; };
 		AA000013 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100013; };
 		AA000014 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA200003; };
 		AA000015 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = AA200004; };
+		AA000016 /* VideoSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100014; };
+		AA000017 /* VideoSessionIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100015; };
+		AA000018 /* MediaCaptureContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100016; };
+		AA000019 /* ApplicationStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100017; };
+		AA000020 /* VideoReviewDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100018; };
+		AA000021 /* FeishuPusher.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100019; };
+		AA000022 /* ScreenshotService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100020; };
+		AA000023 /* VideoJumpService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100021; };
+		AA000024 /* ClipToastWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100022; };
+		AA000025 /* FeishuImageUploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100023; };
+		AA000026 /* DailyNotesPDFExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100024; };
+		AA000027 /* DataBackupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100025; };
+		AA000028 /* LocalCodexClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100026; };
+		AA000029 /* ReviewPDFExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100027; };
+		AA000030 /* DailyLearningDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100028; };
+		AC000001 /* FeishuRelayClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC100001; };
+		AD000001 /* VideoSubtitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD100001; };
+		AE000001 /* YTDLPSubtitleClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE100001; };
+		AB000001 /* VideoNotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100001; };
+		AB000002 /* GlobalHotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100002; };
+		AB000003 /* FloatingInputWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100003; };
+		AB000004 /* FloatingInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100004; };
+		AB000005 /* ClipboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100005; };
+		AB000007 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100007; };
+		AB000008 /* NoteRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100008; };
+		AB000009 /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100009; };
+		AB000010 /* AISummarizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100010; };
+		AB000011 /* ReviewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100011; };
+		AB000013 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100013; };
+		AB000014 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA200003; };
+		AB000015 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = AA200004; };
+		AB000016 /* VideoSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100014; };
+		AB000017 /* VideoSessionIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100015; };
+		AB000018 /* MediaCaptureContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100016; };
+		AB000019 /* EnhancedMediaSessionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB100001; };
+		AB000020 /* ApplicationStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100017; };
+		AB000021 /* VideoReviewDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100018; };
+		AB000022 /* FeishuPusher.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100019; };
+		AB000023 /* DailyReviewArchive.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB100002; };
+		AB000024 /* ScreenshotService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100020; };
+		AB000025 /* VideoJumpService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100021; };
+		AB000026 /* ClipToastWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100022; };
+		AB000027 /* FeishuImageUploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100023; };
+		AB000028 /* DailyNotesPDFExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100024; };
+		AB000029 /* DataBackupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100025; };
+		AB000030 /* LocalCodexClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100026; };
+		AB000031 /* ReviewPDFExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100027; };
+		AB000032 /* DailyLearningDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100028; };
+		AC000002 /* FeishuRelayClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC100001; };
+		AD000002 /* VideoSubtitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD100001; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AF100001 /* MathJax */ = {isa = PBXFileReference; lastKnownFileType = folder; path = VideoNotes/Assets/MathJax; sourceTree = SOURCE_ROOT; };
 		AA100001 /* VideoNotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoNotesApp.swift; sourceTree = "<group>"; };
 		AA100002 /* GlobalHotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotkeyManager.swift; sourceTree = "<group>"; };
 		AA100003 /* FloatingInputWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingInputWindow.swift; sourceTree = "<group>"; };
@@ -33,9 +84,29 @@
 		AA100009 /* HistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStore.swift; sourceTree = "<group>"; };
 		AA100010 /* AISummarizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AISummarizer.swift; sourceTree = "<group>"; };
 		AA100011 /* ReviewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewManager.swift; sourceTree = "<group>"; };
-		AA100012 /* WeChatPusher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeChatPusher.swift; sourceTree = "<group>"; };
 		AA100013 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		AA100014 /* VideoSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoSession.swift; sourceTree = "<group>"; };
+		AA100015 /* VideoSessionIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoSessionIndicator.swift; sourceTree = "<group>"; };
+		AA100016 /* MediaCaptureContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaCaptureContext.swift; sourceTree = "<group>"; };
+		AA100017 /* ApplicationStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationStorage.swift; sourceTree = "<group>"; };
+		AA100018 /* VideoReviewDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoReviewDashboard.swift; sourceTree = "<group>"; };
+		AA100019 /* FeishuPusher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeishuPusher.swift; sourceTree = "<group>"; };
+		AC100001 /* FeishuRelayClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeishuRelayClient.swift; sourceTree = "<group>"; };
+		AD100001 /* VideoSubtitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoSubtitle.swift; sourceTree = "<group>"; };
+		AE100001 /* YTDLPSubtitleClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTDLPSubtitleClient.swift; sourceTree = "<group>"; };
+		AB100001 /* EnhancedMediaSessionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnhancedMediaSessionCoordinator.swift; sourceTree = "<group>"; };
+		AB100002 /* DailyReviewArchive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyReviewArchive.swift; sourceTree = "<group>"; };
+		AA100020 /* ScreenshotService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotService.swift; sourceTree = "<group>"; };
+		AA100021 /* VideoJumpService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoJumpService.swift; sourceTree = "<group>"; };
+		AA100022 /* ClipToastWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipToastWindow.swift; sourceTree = "<group>"; };
+		AA100023 /* FeishuImageUploader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeishuImageUploader.swift; sourceTree = "<group>"; };
+		AA100024 /* DailyNotesPDFExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyNotesPDFExporter.swift; sourceTree = "<group>"; };
+		AA100025 /* DataBackupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBackupManager.swift; sourceTree = "<group>"; };
+		AA100026 /* LocalCodexClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCodexClient.swift; sourceTree = "<group>"; };
+		AA100027 /* ReviewPDFExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPDFExporter.swift; sourceTree = "<group>"; };
+		AA100028 /* DailyLearningDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyLearningDashboard.swift; sourceTree = "<group>"; };
 		AA200000 /* VideoNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB200000 /* VideoNotes Enhanced.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "VideoNotes Enhanced.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA200001 /* VideoNotes.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VideoNotes.entitlements; sourceTree = "<group>"; };
 		AA200002 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA200003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -55,6 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				AA200000 /* VideoNotes.app */,
+				AB200000 /* VideoNotes Enhanced.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,8 +142,9 @@
 				AA300008 /* Models */,
 				AA300010 /* Stores */,
 				AA300011 /* AI */,
-				AA300012 /* WeChat */,
+				AA300015 /* Feishu */,
 				AA300013 /* Settings */,
+				AA300014 /* Video */,
 				AA300007 /* Assets */,
 				AA200002 /* Info.plist */,
 				AA200001 /* VideoNotes.entitlements */,
@@ -101,6 +174,8 @@
 			children = (
 				AA100003 /* FloatingInputWindow.swift */,
 				AA100004 /* FloatingInputView.swift */,
+				AA100015 /* VideoSessionIndicator.swift */,
+				AA100022 /* ClipToastWindow.swift */,
 			);
 			path = Window;
 			sourceTree = "<group>";
@@ -117,6 +192,8 @@
 			isa = PBXGroup;
 			children = (
 				AA100007 /* HistoryView.swift */,
+				AA100018 /* VideoReviewDashboard.swift */,
+				AA100028 /* DailyLearningDashboard.swift */,
 			);
 			path = History;
 			sourceTree = "<group>";
@@ -133,6 +210,7 @@
 			isa = PBXGroup;
 			children = (
 				AA100008 /* NoteRecord.swift */,
+				AD100001 /* VideoSubtitle.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -140,7 +218,10 @@
 		AA300010 /* Stores */ = {
 			isa = PBXGroup;
 			children = (
+				AA100017 /* ApplicationStorage.swift */,
 				AA100009 /* HistoryStore.swift */,
+				AA100024 /* DailyNotesPDFExporter.swift */,
+				AA100025 /* DataBackupManager.swift */,
 			);
 			path = Stores;
 			sourceTree = "<group>";
@@ -150,16 +231,22 @@
 			children = (
 				AA100010 /* AISummarizer.swift */,
 				AA100011 /* ReviewManager.swift */,
+				AB100002 /* DailyReviewArchive.swift */,
+				AA100026 /* LocalCodexClient.swift */,
+				AE100001 /* YTDLPSubtitleClient.swift */,
+				AA100027 /* ReviewPDFExporter.swift */,
 			);
 			path = AI;
 			sourceTree = "<group>";
 		};
-		AA300012 /* WeChat */ = {
+		AA300015 /* Feishu */ = {
 			isa = PBXGroup;
 			children = (
-				AA100012 /* WeChatPusher.swift */,
+				AA100019 /* FeishuPusher.swift */,
+				AC100001 /* FeishuRelayClient.swift */,
+				AA100023 /* FeishuImageUploader.swift */,
 			);
-			path = WeChat;
+			path = Feishu;
 			sourceTree = "<group>";
 		};
 		AA300013 /* Settings */ = {
@@ -168,6 +255,18 @@
 				AA100013 /* SettingsView.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		AA300014 /* Video */ = {
+			isa = PBXGroup;
+			children = (
+				AA100014 /* VideoSession.swift */,
+				AA100016 /* MediaCaptureContext.swift */,
+				AB100001 /* EnhancedMediaSessionCoordinator.swift */,
+				AA100020 /* ScreenshotService.swift */,
+				AA100021 /* VideoJumpService.swift */,
+			);
+			path = Video;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -187,6 +286,22 @@
 			name = VideoNotes;
 			productName = VideoNotes;
 			productReference = AA200000;
+			productType = "com.apple.product-type.application";
+		};
+		AB400000 /* VideoNotes Enhanced */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AB500010;
+			buildPhases = (
+				AB400001 /* Sources */,
+				AB400002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "VideoNotes Enhanced";
+			productName = "VideoNotes Enhanced";
+			productReference = AB200000 /* VideoNotes Enhanced.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -210,6 +325,7 @@
 			projectRoot = "";
 			targets = (
 				AA400000 /* VideoNotes */,
+				AB400000 /* VideoNotes Enhanced */,
 			);
 		};
 /* End PBXProject section */
@@ -221,6 +337,16 @@
 			files = (
 				AA000014 /* Assets.xcassets in Resources */,
 				AA000015 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB400002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF000001 /* MathJax in Resources */,
+				AB000014 /* Assets.xcassets in Resources */,
+				AB000015 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -241,8 +367,62 @@
 				AA000009 /* HistoryStore.swift in Sources */,
 				AA000010 /* AISummarizer.swift in Sources */,
 				AA000011 /* ReviewManager.swift in Sources */,
-				AA000012 /* WeChatPusher.swift in Sources */,
 				AA000013 /* SettingsView.swift in Sources */,
+				AA000016 /* VideoSession.swift in Sources */,
+				AA000017 /* VideoSessionIndicator.swift in Sources */,
+				AA000018 /* MediaCaptureContext.swift in Sources */,
+				AA000019 /* ApplicationStorage.swift in Sources */,
+				AA000020 /* VideoReviewDashboard.swift in Sources */,
+				AA000021 /* FeishuPusher.swift in Sources */,
+				AA000022 /* ScreenshotService.swift in Sources */,
+				AA000023 /* VideoJumpService.swift in Sources */,
+				AA000024 /* ClipToastWindow.swift in Sources */,
+				AA000025 /* FeishuImageUploader.swift in Sources */,
+				AA000026 /* DailyNotesPDFExporter.swift in Sources */,
+				AA000027 /* DataBackupManager.swift in Sources */,
+				AA000028 /* LocalCodexClient.swift in Sources */,
+				AA000029 /* ReviewPDFExporter.swift in Sources */,
+				AA000030 /* DailyLearningDashboard.swift in Sources */,
+				AC000001 /* FeishuRelayClient.swift in Sources */,
+				AD000001 /* VideoSubtitle.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB400001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB000001 /* VideoNotesApp.swift in Sources */,
+				AB000002 /* GlobalHotkeyManager.swift in Sources */,
+				AB000003 /* FloatingInputWindow.swift in Sources */,
+				AB000004 /* FloatingInputView.swift in Sources */,
+				AB000005 /* ClipboardManager.swift in Sources */,
+				AB000007 /* HistoryView.swift in Sources */,
+				AB000008 /* NoteRecord.swift in Sources */,
+				AB000009 /* HistoryStore.swift in Sources */,
+				AB000010 /* AISummarizer.swift in Sources */,
+				AB000011 /* ReviewManager.swift in Sources */,
+				AB000013 /* SettingsView.swift in Sources */,
+				AB000016 /* VideoSession.swift in Sources */,
+				AB000017 /* VideoSessionIndicator.swift in Sources */,
+				AB000018 /* MediaCaptureContext.swift in Sources */,
+				AB000019 /* EnhancedMediaSessionCoordinator.swift in Sources */,
+				AB000020 /* ApplicationStorage.swift in Sources */,
+				AB000021 /* VideoReviewDashboard.swift in Sources */,
+				AB000022 /* FeishuPusher.swift in Sources */,
+				AB000023 /* DailyReviewArchive.swift in Sources */,
+				AB000024 /* ScreenshotService.swift in Sources */,
+				AB000025 /* VideoJumpService.swift in Sources */,
+				AB000026 /* ClipToastWindow.swift in Sources */,
+				AB000027 /* FeishuImageUploader.swift in Sources */,
+				AB000028 /* DailyNotesPDFExporter.swift in Sources */,
+				AB000029 /* DataBackupManager.swift in Sources */,
+				AB000030 /* LocalCodexClient.swift in Sources */,
+				AB000031 /* ReviewPDFExporter.swift in Sources */,
+				AB000032 /* DailyLearningDashboard.swift in Sources */,
+				AC000002 /* FeishuRelayClient.swift in Sources */,
+				AD000002 /* VideoSubtitle.swift in Sources */,
+				AE000001 /* YTDLPSubtitleClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -334,6 +514,57 @@
 			};
 			name = Release;
 		};
+		AB500003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconPro;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 13;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VideoNotes/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MARKETING_VERSION = 1.2.8;
+				PRODUCT_BUNDLE_IDENTIFIER = com.videonotes.app.enhanced;
+				PRODUCT_MODULE_NAME = VideoNotesEnhanced;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) VIDEONOTES_ENHANCED";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AB500004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconPro;
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 13;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VideoNotes/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MARKETING_VERSION = 1.2.8;
+				PRODUCT_BUNDLE_IDENTIFIER = com.videonotes.app.enhanced;
+				PRODUCT_MODULE_NAME = VideoNotesEnhanced;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) VIDEONOTES_ENHANCED";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -351,6 +582,15 @@
 			buildConfigurations = (
 				AA500003 /* Debug */,
 				AA500004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AB500010 /* Build configuration list for PBXNativeTarget */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AB500003 /* Debug */,
+				AB500004 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

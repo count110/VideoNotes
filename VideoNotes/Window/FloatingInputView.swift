@@ -7,6 +7,11 @@ enum VNStyle {
     static let accent = Color(red: 0.30, green: 0.43, blue: 0.98)
     static let cyan = Color(red: 0.18, green: 0.76, blue: 0.98)
     static let violet = Color(red: 0.56, green: 0.37, blue: 0.96)
+    static let inputPrimaryText = Color.white
+    static let inputSecondaryText = Color.white.opacity(0.90)
+    static let hudPrimaryText = Color.white.opacity(0.97)
+    static let hudPlaceholderText = Color.white.opacity(0.62)
+    static let hudSupportingText = Color.white.opacity(0.64)
     static let cornerRadius: CGFloat = 22
 
     static var appBackground: LinearGradient {
@@ -22,13 +27,122 @@ enum VNStyle {
     }
 }
 
+// MARK: - Floating note states and layout
+
+enum NoteOverlayState: Equatable {
+    case collapsed
+    case writing
+    case expanded
+    case saved
+
+    var cardHeight: CGFloat {
+        switch self {
+        case .collapsed, .saved: return 54
+        case .writing: return 142
+        case .expanded: return 300
+        }
+    }
+
+    var cornerRadius: CGFloat {
+        switch self {
+        case .collapsed, .saved: return 27
+        case .writing: return 30
+        case .expanded: return 31
+        }
+    }
+}
+
 enum FloatingInputLayout {
-    static let cardWidth: CGFloat = 620
-    static let shadowInset: CGFloat = 32
-    static let panelSize = NSSize(
-        width: cardWidth + shadowInset * 2,
-        height: 172
-    )
+    static let defaultCardWidth: CGFloat = 800
+    static let minimumCardWidth: CGFloat = 320
+    static let maximumCardWidth: CGFloat = 820
+    /// The rounded card casts a deliberately broad shadow.  The transparent
+    /// window canvas must be larger than that blur, otherwise WindowServer
+    /// clips the remaining shadow at the rectangular window boundary.  That
+    /// clipped tail is visible as a pale gray box on white slides.
+    static let shadowInset: CGFloat = 64
+    /// Preserve the card's visual distance from the bottom of the screen even
+    /// though the transparent shadow canvas is now larger.
+    static let cardBottomInset: CGFloat = 96
+
+    static var windowBottomInset: CGFloat {
+        max(16, cardBottomInset - shadowInset)
+    }
+
+    static func cardWidth(for screen: NSScreen?) -> CGFloat {
+        let availableWidth = screen?.visibleFrame.width ?? 1024
+        let screenSafeWidth = max(minimumCardWidth, availableWidth - 32)
+        let proportionalWidth = availableWidth * 0.64
+        return min(
+            maximumCardWidth,
+            max(minimumCardWidth, min(screenSafeWidth, proportionalWidth))
+        )
+    }
+
+    static func panelSize(cardWidth: CGFloat, state: NoteOverlayState) -> NSSize {
+        NSSize(
+            width: cardWidth + shadowInset * 2,
+            height: state.cardHeight + shadowInset * 2
+        )
+    }
+}
+
+private struct FloatingHUDBackground: View {
+    let opacity: Double
+    let cornerRadius: CGFloat
+    let isHovered: Bool
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        let density = min(
+            1,
+            max(
+                0,
+                (opacity - FloatingInputAppearanceSettings.minimumOpacity)
+                    / (FloatingInputAppearanceSettings.maximumOpacity
+                        - FloatingInputAppearanceSettings.minimumOpacity)
+            )
+        )
+        let glassTintOpacity = 0.15 + density * 0.10 + (isHovered ? 0.01 : 0)
+        let surfaceTintOpacity = 0.06 + density * 0.08 + (isHovered ? 0.008 : 0)
+
+        ZStack {
+            if #available(macOS 26.0, *) {
+                // Use the system's clear Liquid Glass as the actual surface.
+                // The previous regular glass + thin material + 56% black fill
+                // flattened refraction into an opaque gray slab and doubled
+                // the system edge with a hand-drawn outline.
+                Color.clear
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .glassEffect(
+                        .clear.tint(Color.black.opacity(glassTintOpacity)),
+                        in: shape
+                    )
+            } else {
+                shape.fill(.ultraThinMaterial)
+            }
+
+            // A restrained dark wash keeps white notes readable while leaving
+            // enough of the video/slide visible for real refraction and depth.
+            shape.fill(Color.black.opacity(surfaceTintOpacity))
+
+            // Environmental light lives inside the glass instead of drawing a
+            // full perimeter stroke. This removes the uniform gray rim while
+            // keeping the upper-left reflection characteristic of Liquid Glass.
+            shape.fill(
+                LinearGradient(
+                    colors: [
+                        Color.white.opacity(isHovered ? 0.095 : 0.075),
+                        Color.white.opacity(0.022),
+                        Color.clear,
+                        Color.black.opacity(0.055)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+        }
+    }
 }
 
 extension View {
@@ -37,17 +151,41 @@ extension View {
     func vnGlass<S: InsettableShape>(
         in shape: S,
         tint: Color? = nil,
-        interactive: Bool = false
+        interactive: Bool = false,
+        edgeHighlightOpacity: Double = 1.0
     ) -> some View {
         if #available(macOS 26.0, *) {
             self.glassEffect(.regular.tint(tint).interactive(interactive), in: shape)
+            .overlay {
+                // Native Liquid Glass already supplies the blur and refraction;
+                // this restrained highlight keeps the edge readable over both
+                // dark video and bright desktop content.
+                shape.strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            .white.opacity(0.22 * edgeHighlightOpacity),
+                            .white.opacity(0.09 * edgeHighlightOpacity),
+                            .white.opacity(0.025 * edgeHighlightOpacity),
+                            .black.opacity(0.07 * edgeHighlightOpacity)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 0.65
+                )
+            }
         } else {
             self
                 .background(.ultraThinMaterial, in: shape)
                 .overlay {
                     shape.strokeBorder(
                         LinearGradient(
-                            colors: [.white.opacity(0.30), .white.opacity(0.06)],
+                            colors: [
+                                .white.opacity(0.22 * edgeHighlightOpacity),
+                                .white.opacity(0.09 * edgeHighlightOpacity),
+                                .white.opacity(0.025 * edgeHighlightOpacity),
+                                .black.opacity(0.07 * edgeHighlightOpacity)
+                            ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
@@ -71,10 +209,10 @@ struct VNShortcutKey: View {
     var body: some View {
         Text(text)
             .font(.system(size: 10, weight: .semibold, design: .rounded))
-            .foregroundStyle(.secondary)
+            .foregroundStyle(VNStyle.inputSecondaryText)
             .padding(.horizontal, 6)
             .padding(.vertical, 3)
-            .background(.primary.opacity(0.075), in: RoundedRectangle(cornerRadius: 6))
+            .background(Color.white.opacity(0.13), in: RoundedRectangle(cornerRadius: 6))
             .accessibilityHidden(true)
     }
 }
@@ -399,13 +537,19 @@ struct EmotionEasterEggView: View {
 // MARK: - Typing-responsive rainbow edge
 
 /// A restrained conic glow inspired by the blue–violet–magenta edge light of
-/// the reference image. Typing cadence controls both brightness and breathing
-/// speed; once typing stops, the edge quietly dissolves back into the glass.
+/// the reference image. Typing cadence controls its base intensity and
+/// breathing speed; user preferences tune the brightness and motion globally.
 @MainActor
 final class TypingPulse: ObservableObject {
     @Published private(set) var isActive = false
 
     private var lastInputAt: Date?
+    /// Chinese/Japanese/Korean input methods can keep marked text alive while
+    /// the user pauses. That pause is not the same as stopping the editor:
+    /// the candidate session is still active and the typing glow should stay
+    /// alive until the composition is committed or cancelled.
+    private var isComposing = false
+    private var speedMultiplier = FloatingInputAppearanceSettings.defaultGlowSpeed
     private var fadeTask: Task<Void, Never>?
     private var interactionID = 0
     private var intensityRamp = ScalarRamp(value: 0)
@@ -426,12 +570,12 @@ final class TypingPulse: ObservableObject {
         let smoothedTarget = intensity(at: now) * 0.38 + target * 0.62
         intensityRamp.retarget(to: smoothedTarget, at: now, duration: 0.22)
         breathPhase.retarget(
-            to: 1 / (1.55 - smoothedTarget * 0.93),
+            to: breathingRate(for: smoothedTarget),
             at: now,
             duration: 0.34
         )
         colorRotation.retarget(
-            to: 10 + smoothedTarget * 18,
+            to: rotationRate(for: smoothedTarget),
             at: now,
             duration: 0.34
         )
@@ -439,7 +583,60 @@ final class TypingPulse: ObservableObject {
         if !isActive {
             isActive = true
         }
-        scheduleFade()
+        if !isComposing {
+            scheduleFade()
+        }
+    }
+
+    /// Changes animation speed without jumping the current phase. The
+    /// intensity/brightness setting is rendered by the border view, while
+    /// this multiplier only affects breathing and color movement.
+    func setSpeedMultiplier(_ speed: Double) {
+        let normalizedSpeed = min(
+            FloatingInputAppearanceSettings.maximumGlowSpeed,
+            max(FloatingInputAppearanceSettings.minimumGlowSpeed, speed)
+        )
+        guard abs(speedMultiplier - normalizedSpeed) > 0.001 else { return }
+
+        let now = Date()
+        speedMultiplier = normalizedSpeed
+        let currentIntensity = intensity(at: now)
+        breathPhase.retarget(
+            to: breathingRate(for: currentIntensity),
+            at: now,
+            duration: 0.24
+        )
+        colorRotation.retarget(
+            to: rotationRate(for: currentIntensity),
+            at: now,
+            duration: 0.24
+        )
+    }
+
+    /// Keeps the glow alive for the entire native input-method composition.
+    /// A marked-text session can remain open without producing any new
+    /// textDidChange notifications, so the ordinary idle timer must not fade
+    /// the border while this flag is true.
+    func setCompositionActive(_ active: Bool) {
+        guard isComposing != active else {
+            if active {
+                cancelScheduledFade()
+            }
+            return
+        }
+
+        isComposing = active
+
+        if active {
+            cancelScheduledFade()
+            if !isActive {
+                isActive = true
+            }
+        } else if isActive {
+            // Start the normal idle countdown from the moment composition
+            // ends, even if the user paused inside the candidate session.
+            scheduleFade()
+        }
     }
 
     func intensity(at date: Date) -> Double {
@@ -455,8 +652,10 @@ final class TypingPulse: ObservableObject {
     }
 
     private func scheduleFade() {
+        guard !isComposing else { return }
+
         fadeTask?.cancel()
-        interactionID += 1
+        interactionID &+= 1
         let currentID = interactionID
 
         fadeTask = Task { @MainActor [weak self] in
@@ -468,7 +667,8 @@ final class TypingPulse: ObservableObject {
 
             guard !Task.isCancelled,
                   let self,
-                  self.interactionID == currentID else { return }
+                  self.interactionID == currentID,
+                  !self.isComposing else { return }
 
             self.beginFade(at: Date())
 
@@ -479,15 +679,30 @@ final class TypingPulse: ObservableObject {
             }
 
             guard !Task.isCancelled,
-                  self.interactionID == currentID else { return }
+                  self.interactionID == currentID,
+                  !self.isComposing else { return }
             self.isActive = false
         }
     }
 
+    private func cancelScheduledFade() {
+        fadeTask?.cancel()
+        fadeTask = nil
+        interactionID &+= 1
+    }
+
     private func beginFade(at now: Date) {
         intensityRamp.retarget(to: 0, at: now, duration: 0.48)
-        breathPhase.retarget(to: 1 / 1.55, at: now, duration: 0.48)
-        colorRotation.retarget(to: 10, at: now, duration: 0.48)
+        breathPhase.retarget(to: breathingRate(for: 0), at: now, duration: 0.48)
+        colorRotation.retarget(to: rotationRate(for: 0), at: now, duration: 0.48)
+    }
+
+    private func breathingRate(for intensity: Double) -> Double {
+        (1 / (1.55 - intensity * 0.93)) * speedMultiplier
+    }
+
+    private func rotationRate(for intensity: Double) -> Double {
+        (10 + intensity * 18) * speedMultiplier
     }
 
     /// A scalar that changes value without a discontinuity. TimelineView reads
@@ -577,10 +792,11 @@ final class TypingPulse: ObservableObject {
 @MainActor
 struct TypingRainbowBorder: View {
     @ObservedObject var pulse: TypingPulse
+    let brightness: Double
+    let cornerRadius: CGFloat
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private let shape = RoundedRectangle(cornerRadius: 26, style: .continuous)
     private let colors: [Color] = [
         Color(red: 0.18, green: 0.92, blue: 1.00),
         Color(red: 0.24, green: 0.46, blue: 1.00),
@@ -592,6 +808,7 @@ struct TypingRainbowBorder: View {
     ]
 
     var body: some View {
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
         TimelineView(
             .animation(
                 minimumInterval: 1.0 / 30.0,
@@ -600,7 +817,9 @@ struct TypingRainbowBorder: View {
         ) { timeline in
             let intensity = pulse.intensity(at: timeline.date)
             let values = animationValues(at: timeline.date)
-            let opacity = pulse.isActive ? 0.46 + intensity * 0.54 : 0
+            let opacity = pulse.isActive
+                ? min(1, (0.46 + intensity * 0.54) * brightness)
+                : 0
             let gradient = AngularGradient(
                 colors: colors,
                 center: .center,
@@ -665,6 +884,23 @@ final class InputViewModel: ObservableObject {
 
     @Published var text: String = ""
     @Published var showCopiedToast: Bool = false
+    @Published var attachedScreenshotPath: String?
+    @Published private(set) var overlayState: NoteOverlayState = .collapsed
+    @Published private(set) var capturedVideoContext: MediaCaptureContext?
+    @Published private(set) var savedTimestamp: String?
+    @Published private(set) var cardWidth: CGFloat = FloatingInputLayout.defaultCardWidth
+    /// 截图时锁定的视频上下文；保存时优先使用它，保证文字输入耗时不会改变截图时间点。
+    var attachedVideoContext: MediaCaptureContext?
+
+    var onPasteImage: ((NSImage) -> Void)?
+    /// Changes only when the editor is explicitly reset for a new note.
+    ///
+    /// SwiftUI refreshes this view for the video timer, rainbow border and
+    /// emotion animation. Those refreshes must never push the (temporarily
+    /// stale) binding back into NSTextView while an input method owns marked
+    /// text. A separate revision makes an intentional model-to-editor write
+    /// distinguishable from an ordinary decorative refresh.
+    @Published private(set) var editorResetRevision: UInt64 = 0
 
     var onCommit: ((String) -> Void)?
     var onDismiss: (() -> Void)?
@@ -676,15 +912,128 @@ final class InputViewModel: ObservableObject {
     func commit() { onCommit?(text) }
     func dismiss() { onDismiss?() }
 
-    func showToast() {
+    func setCardWidth(_ width: CGFloat) {
+        guard width.isFinite else { return }
+        cardWidth = min(
+            FloatingInputLayout.maximumCardWidth,
+            max(FloatingInputLayout.minimumCardWidth, width)
+        )
+    }
+
+    func prepareForPresentation(
+        capturedVideoContext: MediaCaptureContext?,
+        cardWidth: CGFloat
+    ) {
+        text = ""
+        showCopiedToast = false
+        attachedScreenshotPath = nil
+        attachedVideoContext = nil
+        savedTimestamp = nil
+        self.capturedVideoContext = capturedVideoContext
+        setCardWidth(cardWidth)
+        editorResetRevision &+= 1
+        withAnimation(.easeInOut(duration: 0.19)) {
+            overlayState = .writing
+        }
+    }
+
+    func beginWriting(capturedVideoContext: MediaCaptureContext?) {
+        text = ""
+        showCopiedToast = false
+        attachedScreenshotPath = nil
+        attachedVideoContext = nil
+        savedTimestamp = nil
+        self.capturedVideoContext = capturedVideoContext
+        editorResetRevision &+= 1
+        withAnimation(.easeInOut(duration: 0.19)) {
+            overlayState = .writing
+        }
+    }
+
+    func toggleExpanded() {
+        withAnimation(.easeInOut(duration: 0.19)) {
+            overlayState = overlayState == .expanded ? .writing : .expanded
+        }
+    }
+
+    func showToast(timestamp: String) {
+        savedTimestamp = timestamp
         withAnimation(.snappy(duration: 0.24)) {
             showCopiedToast = true
+            overlayState = .saved
         }
+    }
+
+    func removeAttachedScreenshot() {
+        attachedScreenshotPath = nil
+        attachedVideoContext = nil
+    }
+
+    func attachPastedImage(_ image: NSImage) {
+        NSLog("[VNPasteDiag] step5: InputViewModel.attachPastedImage called, onPasteImageIsNil=\(onPasteImage == nil)")
+        onPasteImage?(image)
     }
 
     func reset() {
         text = ""
         showCopiedToast = false
+        removeAttachedScreenshot()
+        savedTimestamp = nil
+        capturedVideoContext = nil
+        overlayState = .collapsed
+        editorResetRevision &+= 1
+    }
+}
+
+// MARK: - Attached Screenshot Thumbnail
+
+/// 输入框内的小缩略图：表示截图已附加，可移除。不撑满输入框。
+private struct AttachedScreenshotThumbnail: View {
+    let path: String
+    let width: CGFloat
+    let height: CGFloat
+    let onRemove: () -> Void
+
+    private var image: NSImage? {
+        NSImage(contentsOfFile: path)
+    }
+
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            Group {
+                if let image {
+                    Image(nsImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    Rectangle()
+                        .fill(Color.primary.opacity(0.06))
+                        .overlay {
+                            Image(systemName: "photo")
+                                .font(.system(size: 14, weight: .light))
+                                .foregroundStyle(.secondary)
+                        }
+                }
+            }
+            .frame(width: width, height: height)
+            .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                    .strokeBorder(.primary.opacity(0.10), lineWidth: 0.75)
+            }
+
+            Button(action: onRemove) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.white, .black.opacity(0.55))
+            }
+            .buttonStyle(.plain)
+            .padding(3)
+            .help("移除截图")
+            .accessibilityLabel("移除截图")
+        }
+        .frame(width: width, height: height)
+        .help("已附加截图")
     }
 }
 
@@ -692,136 +1041,298 @@ final class InputViewModel: ObservableObject {
 
 struct FloatingInputView: View {
     @ObservedObject var viewModel: InputViewModel
+    @ObservedObject private var videoSessionManager = VideoSessionManager.shared
+    @AppStorage(FloatingInputAppearanceSettings.opacityKey)
+    private var inputBoxOpacity = FloatingInputAppearanceSettings.defaultOpacity
+    @AppStorage(FloatingInputAppearanceSettings.glowBrightnessKey)
+    private var glowBrightness = FloatingInputAppearanceSettings.defaultGlowBrightness
+    @AppStorage(FloatingInputAppearanceSettings.glowSpeedKey)
+    private var glowSpeed = FloatingInputAppearanceSettings.defaultGlowSpeed
 
     // The animation state is intentionally separate from the editable text
     // hierarchy. Editing therefore never rebuilds the AppKit text view just to
     // update the decorative border, which keeps IME composition stable.
     @StateObject private var typingPulse = TypingPulse()
+    @State private var isHovered = false
 
     private var detectedEmotion: InputEmotion? {
         InputEmotion.detect(in: viewModel.text)
     }
 
+    private var shouldShowCharacterCount: Bool {
+        viewModel.remainingCharacters <= 160
+    }
+
+    private var canSave: Bool {
+        !viewModel.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || viewModel.attachedScreenshotPath != nil
+    }
+
     var body: some View {
-        VStack(spacing: 12) {
-            HStack(alignment: .center, spacing: 13) {
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [VNStyle.accent, VNStyle.cyan],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                    Image(systemName: "note.text")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(.white)
-                }
-                .frame(width: 42, height: 42)
-                .shadow(color: VNStyle.accent.opacity(0.28), radius: 9, y: 4)
-                .accessibilityHidden(true)
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("快速记一笔")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(.secondary)
-
-                    InputTextView(
-                        text: $viewModel.text,
-                        onCommit: { viewModel.commit() },
-                        onDismiss: { viewModel.dismiss() },
-                        onUserEdit: { typingPulse.recordInput() }
-                    )
-                    .frame(minHeight: 28, maxHeight: 56)
-                    .accessibilityLabel("笔记内容")
-                    .accessibilityHint("按回车保存，按 Shift 加回车换行")
-                }
-
-                Button {
-                    viewModel.commit()
-                } label: {
-                    Image(systemName: "arrow.up")
-                        .font(.system(size: 15, weight: .bold))
-                        .foregroundStyle(viewModel.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.secondary : Color.white)
-                        .frame(width: 34, height: 34)
-                        .background(
-                            viewModel.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                                ? Color.primary.opacity(0.07)
-                                : VNStyle.accent,
-                            in: Circle()
-                        )
-                }
-                .buttonStyle(.plain)
-                .disabled(viewModel.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                .help("保存笔记")
-                .accessibilityLabel("保存笔记")
+        Group {
+            switch viewModel.overlayState {
+            case .collapsed:
+                collapsedView
+            case .writing:
+                editorView(isExpanded: false)
+            case .expanded:
+                editorView(isExpanded: true)
+            case .saved:
+                savedView
             }
-
-            HStack(spacing: 6) {
-                VNShortcutKey(text: "↩")
-                Text("保存")
-                VNShortcutKey(text: "⇧↩")
-                Text("换行")
-                VNShortcutKey(text: "esc")
-                Text("关闭")
-
-                Spacer(minLength: 12)
-
-                // A fixed slot prevents the counter from jumping when the
-                // decorative response appears or changes emotion.
-                ZStack {
-                    if let detectedEmotion = detectedEmotion {
-                        EmotionEasterEggView(emotion: detectedEmotion)
-                            .id(detectedEmotion)
-                            .transition(.scale(scale: 0.72).combined(with: .opacity))
-                    }
-                }
-                .frame(width: 34, height: 22)
-
-                Text("还可输入 \(viewModel.remainingCharacters) 字")
-                    .monospacedDigit()
-            }
-            .font(.system(size: 10.5))
-            .foregroundStyle(.tertiary)
         }
-        .animation(.easeInOut(duration: 0.20), value: detectedEmotion)
-        .padding(.horizontal, 18)
-        .padding(.vertical, 15)
-        .frame(width: FloatingInputLayout.cardWidth)
-        .vnGlass(in: RoundedRectangle(cornerRadius: 26, style: .continuous), tint: VNStyle.accent.opacity(0.08))
-        .overlay {
-            TypingRainbowBorder(
-                pulse: typingPulse
+        .frame(width: viewModel.cardWidth, height: viewModel.overlayState.cardHeight)
+        .background {
+            FloatingHUDBackground(
+                opacity: inputBoxOpacity,
+                cornerRadius: viewModel.overlayState.cornerRadius,
+                isHovered: isHovered
             )
         }
-        .shadow(color: .black.opacity(0.12), radius: 10, y: 4)
-        .overlay(alignment: .topTrailing) {
-            if viewModel.showCopiedToast {
-                Label("已保存并复制", systemImage: "checkmark.circle.fill")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.green)
-                    .padding(.horizontal, 11)
-                    .padding(.vertical, 7)
-                    .vnGlass(in: Capsule(), tint: .green.opacity(0.12))
-                    .padding(10)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-            }
+        .clipShape(
+            RoundedRectangle(
+                cornerRadius: viewModel.overlayState.cornerRadius,
+                style: .continuous
+            )
+        )
+        .overlay {
+            TypingRainbowBorder(
+                pulse: typingPulse,
+                brightness: glowBrightness,
+                cornerRadius: viewModel.overlayState.cornerRadius
+            )
         }
-        // The transparent NSPanel must include the complete blur footprint.
-        // Otherwise macOS clips the shadow at the window bounds and turns the
-        // clipped edge into a dark polygon on bright video backgrounds.
+        .shadow(color: .black.opacity(0.20), radius: 28, y: 10)
         .padding(FloatingInputLayout.shadowInset)
         .frame(
-            width: FloatingInputLayout.panelSize.width,
-            height: FloatingInputLayout.panelSize.height
+            width: FloatingInputLayout.panelSize(
+                cardWidth: viewModel.cardWidth,
+                state: viewModel.overlayState
+            ).width,
+            height: FloatingInputLayout.panelSize(
+                cardWidth: viewModel.cardWidth,
+                state: viewModel.overlayState
+            ).height
         )
-        .onChange(of: viewModel.text) { newValue in
-            if newValue.count > InputViewModel.characterLimit {
-                viewModel.text = String(newValue.prefix(InputViewModel.characterLimit))
-                return
+        .animation(.easeInOut(duration: 0.19), value: viewModel.overlayState)
+        .animation(.easeInOut(duration: 0.19), value: detectedEmotion)
+        .onHover { isHovered = $0 }
+        .onChange(of: viewModel.showCopiedToast) { isShowingToast in
+            guard isShowingToast else { return }
+            let defaults = UserDefaults.standard
+            defaults.set(defaults.integer(forKey: "VideoNotes.savedNoteCount") + 1, forKey: "VideoNotes.savedNoteCount")
+        }
+        .onChange(of: viewModel.attachedScreenshotPath) { newValue in
+            NSLog("[VNPasteDiag] step8: FloatingInputView onChange attachedScreenshotPath=\(newValue ?? "nil")")
+        }
+        .onAppear {
+            typingPulse.setSpeedMultiplier(glowSpeed)
+        }
+        .onChange(of: glowSpeed) { newSpeed in
+            typingPulse.setSpeedMultiplier(newSpeed)
+        }
+    }
+
+    // MARK: - Collapsed / saved states
+
+    private var collapsedView: some View {
+        HStack(spacing: 10) {
+            VideoSessionIndicator(
+                sessionManager: videoSessionManager,
+                capturedContext: nil,
+                compact: true,
+                onTimestampTap: copyTimestamp
+            )
+            .fixedSize(horizontal: true, vertical: false)
+
+            Button(action: beginWritingFromCollapsed) {
+                HStack(spacing: 8) {
+                    Text("写下此刻的重点…")
+                        .font(.system(size: 15, weight: .regular))
+                        .foregroundStyle(VNStyle.hudPlaceholderText)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+
+                    Spacer(minLength: 4)
+
+                    VNShortcutKey(text: "⌘⇧Space")
+                }
+            }
+            .buttonStyle(.plain)
+            .help("快速记笔记 · ⌘⇧Space")
+            .accessibilityLabel("写下此刻的重点")
+            .accessibilityHint("按下后自动聚焦输入框")
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+    }
+
+    private var savedView: some View {
+        HStack(spacing: 9) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Color.green.opacity(0.92))
+
+            Text("已记录 \(viewModel.savedTimestamp ?? "--:--")")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(VNStyle.hudPrimaryText)
+                .monospacedDigit()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("已记录 \(viewModel.savedTimestamp ?? "未知时间")")
+    }
+
+    // MARK: - Writing / expanded states
+
+    private func editorView(isExpanded: Bool) -> some View {
+        VStack(alignment: .leading, spacing: isExpanded ? 12 : 11) {
+            HStack(alignment: .center, spacing: 8) {
+                VideoSessionIndicator(
+                    sessionManager: videoSessionManager,
+                    capturedContext: viewModel.capturedVideoContext,
+                    compact: false,
+                    onTimestampTap: copyTimestamp
+                )
+                .layoutPriority(1)
+
+                Spacer(minLength: 3)
+
+                Button {
+                    viewModel.toggleExpanded()
+                } label: {
+                    Image(systemName: isExpanded
+                        ? "arrow.down.right.and.arrow.up.left"
+                        : "arrow.up.left.and.arrow.down.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(VNStyle.hudSupportingText)
+                        .frame(width: 26, height: 25)
+                }
+                .buttonStyle(.plain)
+                .help(isExpanded ? "收起笔记编辑器" : "展开长笔记")
+                .accessibilityLabel(isExpanded ? "收起笔记编辑器" : "展开长笔记")
+
+                saveButton
+            }
+            .frame(height: 26)
+
+            HStack(alignment: .top, spacing: 8) {
+                if let path = viewModel.attachedScreenshotPath {
+                    AttachedScreenshotThumbnail(
+                        path: path,
+                        width: isExpanded ? 84 : 60,
+                        height: isExpanded ? 52 : 40
+                    ) {
+                        viewModel.removeAttachedScreenshot()
+                    }
+                }
+
+                InputTextView(
+                    text: $viewModel.text,
+                    resetRevision: viewModel.editorResetRevision,
+                    characterLimit: InputViewModel.characterLimit,
+                    onCommit: { viewModel.commit() },
+                    onDismiss: { viewModel.dismiss() },
+                    onUserEdit: { typingPulse.recordInput() },
+                    onCompositionStateChanged: { isComposing in
+                        typingPulse.setCompositionActive(isComposing)
+                    },
+                    onPasteImage: { image in viewModel.attachPastedImage(image) }
+                )
+                .frame(maxWidth: .infinity)
+                .frame(height: isExpanded ? 194 : 49)
+                .accessibilityLabel("笔记内容")
+                .accessibilityHint("按回车保存，按 Shift 加回车换行，按 Escape 收起")
+            }
+
+            HStack(spacing: 7) {
+                Text("↵ 保存     ⇧↵ 换行     Esc 收起")
+                    .lineLimit(1)
+
+                Spacer(minLength: 4)
+
+                if let detectedEmotion {
+                    EmotionEasterEggView(emotion: detectedEmotion)
+                        .id(detectedEmotion)
+                        .transition(.scale(scale: 0.72).combined(with: .opacity))
+                }
+
+                if shouldShowCharacterCount {
+                    Text("还可输入 \(viewModel.remainingCharacters) 字")
+                        .monospacedDigit()
+                        .lineLimit(1)
+                }
+            }
+            .frame(height: 16)
+            .font(.system(size: 11.5, weight: .regular, design: .rounded))
+            .foregroundStyle(Color.white.opacity(0.48))
+            .shadow(color: .black.opacity(0.42), radius: 1.5, y: 1)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, isExpanded ? 18 : 14)
+    }
+
+    private var saveButton: some View {
+        Button {
+            viewModel.commit()
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 10, weight: .bold))
+                Text("保存")
+                    .font(.system(size: 11, weight: .semibold))
+            }
+            .foregroundStyle(canSave ? Color.white : Color.white.opacity(0.48))
+            .padding(.horizontal, 10)
+            .frame(height: 26)
+            .background {
+                ZStack {
+                    Capsule()
+                        .fill(Color.white.opacity(canSave ? 0.095 : 0.055))
+
+                    if #available(macOS 26.0, *) {
+                        Color.clear.vnGlass(
+                            in: Capsule(),
+                            tint: canSave
+                                ? VNStyle.accent.opacity(isHovered ? 0.16 : 0.09)
+                                : Color.white.opacity(0.025),
+                            interactive: true,
+                            edgeHighlightOpacity: 0.54
+                        )
+                    } else {
+                        Capsule()
+                            .fill(.thinMaterial)
+                            .opacity(0.45)
+                    }
+                }
+            }
+            .overlay {
+                Capsule()
+                    .strokeBorder(
+                        canSave
+                            ? VNStyle.accent.opacity(isHovered ? 0.30 : 0.16)
+                            : Color.white.opacity(0.08),
+                        lineWidth: 0.65
+                    )
             }
         }
+        .buttonStyle(.plain)
+        .disabled(!canSave)
+        .help("保存笔记 · 回车")
+        .accessibilityLabel("保存笔记")
+        .accessibilityHint("回车")
+    }
+
+    private func beginWritingFromCollapsed() {
+        let context = viewModel.capturedVideoContext
+            ?? MediaCaptureResolver.context(at: Date())
+        viewModel.beginWriting(capturedVideoContext: context)
+    }
+
+    private func copyTimestamp(_ timestamp: String) {
+        guard timestamp != "--:--" else { return }
+        ClipboardManager.shared.copy(text: timestamp)
+        ClipToastWindow.show(message: "已复制时间点 \(timestamp)")
     }
 }
 
@@ -829,17 +1340,21 @@ struct FloatingInputView: View {
 
 struct InputTextView: NSViewRepresentable {
     @Binding var text: String
+    let resetRevision: UInt64
+    let characterLimit: Int
     let onCommit: () -> Void
     let onDismiss: () -> Void
     let onUserEdit: () -> Void
+    let onCompositionStateChanged: (Bool) -> Void
+    let onPasteImage: (NSImage) -> Void
 
-    func makeNSView(context: Context) -> InputNSTextView {
+    func makeNSView(context: Context) -> InputEditorScrollView {
         let textView = InputNSTextView()
         textView.delegate = context.coordinator
         textView.onCommit = onCommit
         textView.onDismiss = onDismiss
-        textView.font = .systemFont(ofSize: 17, weight: .regular)
-        textView.textColor = .labelColor
+        textView.onCompositionStateChanged = onCompositionStateChanged
+        textView.onPasteImage = onPasteImage
         textView.backgroundColor = .clear
         textView.drawsBackground = false
         textView.isEditable = true
@@ -850,44 +1365,218 @@ struct InputTextView: NSViewRepresentable {
         textView.textContainer?.lineFragmentPadding = 0
         textView.textContainerInset = .zero
         textView.maxHeight = 56
+        textView.isVerticallyResizable = true
+        textView.isHorizontallyResizable = false
+        textView.autoresizingMask = [.width]
+        textView.minSize = NSSize(width: 0, height: 0)
+        textView.maxSize = NSSize(
+            width: CGFloat.greatestFiniteMagnitude,
+            height: CGFloat.greatestFiniteMagnitude
+        )
         textView.setAccessibilityLabel("笔记内容")
+        textView.string = text
+        textView.setSelectedRange(NSRange(location: text.utf16.count, length: 0))
+        // The editor is placed over arbitrary video frames. Liquid Glass and
+        // the typography treatment keep the glyphs bright and stable instead
+        // of inheriting a low-contrast label color.
+        textView.applyReadableTypography()
+        context.coordinator.appliedResetRevision = resetRevision
 
-        DispatchQueue.main.async {
-            textView.window?.makeFirstResponder(textView)
-        }
-        return textView
+        // FloatingInputPanel owns first-responder assignment. Keeping one
+        // authority avoids an asynchronous focus race during panel retries.
+        return InputEditorScrollView(editor: textView)
     }
 
-    func updateNSView(_ nsView: InputNSTextView, context: Context) {
-        nsView.onCommit = onCommit
-        nsView.onDismiss = onDismiss
+    func updateNSView(_ nsView: InputEditorScrollView, context: Context) {
+        let textView = nsView.editor
+        textView.onCommit = onCommit
+        textView.onDismiss = onDismiss
+        textView.onCompositionStateChanged = onCompositionStateChanged
+        textView.onPasteImage = onPasteImage
         context.coordinator.onUserEdit = onUserEdit
-        if nsView.string != text {
-            let selection = nsView.selectedRange()
-            nsView.string = text
-            nsView.setSelectedRange(NSRange(location: min(selection.location, text.utf16.count), length: 0))
-            nsView.needsDisplay = true
+        context.coordinator.onCompositionStateChanged = onCompositionStateChanged
+        context.coordinator.characterLimit = characterLimit
+
+        // Never use an ordinary SwiftUI update as a reason to rewrite the
+        // native editor. During IME composition the binding intentionally
+        // contains only committed text, so comparing the two strings is not a
+        // valid synchronization signal. Only an explicit reset revision may
+        // flow from the model back into NSTextView.
+        guard context.coordinator.appliedResetRevision != resetRevision else {
+            return
         }
+
+        context.coordinator.appliedResetRevision = resetRevision
+        textView.inputContext?.discardMarkedText()
+        textView.onCompositionStateChanged?(false)
+        textView.string = text
+        textView.setSelectedRange(NSRange(location: text.utf16.count, length: 0))
+        textView.applyReadableTypography()
+        textView.undoManager?.removeAllActions()
+        textView.needsDisplay = true
+        nsView.resizeEditor()
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(text: $text, onUserEdit: onUserEdit)
+        Coordinator(
+            text: $text,
+            onUserEdit: onUserEdit,
+            onCompositionStateChanged: onCompositionStateChanged,
+            characterLimit: characterLimit,
+            appliedResetRevision: resetRevision
+        )
     }
 
     final class Coordinator: NSObject, NSTextViewDelegate {
         @Binding var text: String
         var onUserEdit: () -> Void
+        var onCompositionStateChanged: (Bool) -> Void
+        var characterLimit: Int
+        var appliedResetRevision: UInt64
 
-        init(text: Binding<String>, onUserEdit: @escaping () -> Void) {
+        init(
+            text: Binding<String>,
+            onUserEdit: @escaping () -> Void,
+            onCompositionStateChanged: @escaping (Bool) -> Void,
+            characterLimit: Int,
+            appliedResetRevision: UInt64
+        ) {
             self._text = text
             self.onUserEdit = onUserEdit
+            self.onCompositionStateChanged = onCompositionStateChanged
+            self.characterLimit = characterLimit
+            self.appliedResetRevision = appliedResetRevision
+        }
+
+        func textView(
+            _ textView: NSTextView,
+            shouldChangeTextIn affectedCharRange: NSRange,
+            replacementString: String?
+        ) -> Bool {
+            guard let replacementString else { return true }
+
+            // Marked text belongs to the input method. It is validated after
+            // the candidate is committed so the character limit never breaks
+            // an active Chinese/Japanese/Korean composition session.
+            guard !textView.hasMarkedText() else { return true }
+
+            let current = textView.string as NSString
+            guard affectedCharRange.location <= current.length,
+                  NSMaxRange(affectedCharRange) <= current.length else {
+                return false
+            }
+
+            let candidate = current.replacingCharacters(
+                in: affectedCharRange,
+                with: replacementString
+            )
+            return candidate.count <= characterLimit
         }
 
         func textDidChange(_ notification: Notification) {
             guard let textView = notification.object as? NSTextView else { return }
-            text = textView.string
+            let isComposing = textView.hasMarkedText()
+            onCompositionStateChanged(isComposing)
+
+            // Some IMEs send provisional change notifications. The binding
+            // should contain committed text only; the final commit produces a
+            // normal change notification after marked text is cleared.
+            guard !isComposing else {
+                onUserEdit()
+                textView.needsDisplay = true
+                return
+            }
+
+            // A composition can temporarily exceed the limit because marked
+            // text is deliberately left untouched above. Trim only after the
+            // input method has committed it, when replacing the native string
+            // can no longer cancel a candidate window.
+            let committedText: String
+            if textView.string.count > characterLimit {
+                committedText = String(textView.string.prefix(characterLimit))
+                textView.string = committedText
+                textView.setSelectedRange(
+                    NSRange(location: committedText.utf16.count, length: 0)
+                )
+                if let inputTextView = textView as? InputNSTextView {
+                    inputTextView.applyReadableTypography()
+                }
+            } else {
+                committedText = textView.string
+            }
+
+            text = committedText
             onUserEdit()
             textView.needsDisplay = true
+        }
+    }
+}
+
+/// The editor is kept native for reliable IME behavior, while the scroll view
+/// gives the expanded state a real viewport instead of clipping long notes.
+final class InputEditorScrollView: NSScrollView {
+    let editor: InputNSTextView
+
+    init(editor: InputNSTextView) {
+        self.editor = editor
+        super.init(frame: .zero)
+
+        drawsBackground = false
+        backgroundColor = .clear
+        borderType = .noBorder
+        hasHorizontalScroller = false
+        hasVerticalScroller = true
+        autohidesScrollers = true
+        scrollerStyle = .overlay
+        verticalScrollElasticity = .automatic
+        horizontalScrollElasticity = .none
+
+        editor.frame = NSRect(x: 0, y: 0, width: 300, height: 40)
+        editor.autoresizingMask = [.width]
+        documentView = editor
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(editorDidChange),
+            name: NSText.didChangeNotification,
+            object: editor
+        )
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    override func layout() {
+        super.layout()
+        resizeEditor()
+    }
+
+    @objc private func editorDidChange() {
+        resizeEditor()
+    }
+
+    func resizeEditor() {
+        let viewportWidth = contentView.bounds.width
+        let viewportHeight = contentView.bounds.height
+        guard viewportWidth > 1, viewportHeight > 1 else { return }
+
+        editor.frame.size.width = viewportWidth
+        if let textContainer = editor.textContainer,
+           let layoutManager = editor.layoutManager {
+            textContainer.containerSize = NSSize(
+                width: viewportWidth,
+                height: CGFloat.greatestFiniteMagnitude
+            )
+            layoutManager.ensureLayout(for: textContainer)
+            let usedHeight = ceil(layoutManager.usedRect(for: textContainer).height) + 8
+            editor.frame.size.height = max(viewportHeight, usedHeight)
+        } else {
+            editor.frame.size.height = viewportHeight
         }
     }
 }
@@ -895,25 +1584,167 @@ struct InputTextView: NSViewRepresentable {
 final class InputNSTextView: NSTextView {
     var onCommit: (() -> Void)?
     var onDismiss: (() -> Void)?
+    var onCompositionStateChanged: ((Bool) -> Void)?
+    var onPasteImage: ((NSImage) -> Void)?
     var maxHeight: CGFloat = 56
 
+    static let readableFont = NSFont.systemFont(ofSize: 17, weight: .medium)
+
+    /// Applies the same high-contrast typography to normal text, text entered
+    /// next, and text restored after a reset. The subtle negative stroke adds
+    /// a crisp edge while the shadow separates white glyphs from bright video.
+    func applyReadableTypography() {
+        let attributes = readableTextAttributes()
+        font = Self.readableFont
+        textColor = NSColor.white
+        typingAttributes = attributes
+
+        var markedAttributes = attributes
+        markedAttributes[.underlineStyle] = NSUnderlineStyle.single.rawValue
+        markedTextAttributes = markedAttributes
+
+        let textLength = (string as NSString).length
+        if textLength > 0 {
+            textStorage?.addAttributes(
+                attributes,
+                range: NSRange(location: 0, length: textLength)
+            )
+        }
+        needsDisplay = true
+    }
+
+    private func readableTextAttributes() -> [NSAttributedString.Key: Any] {
+        [
+            .font: Self.readableFont,
+            .foregroundColor: NSColor.white,
+            .shadow: readableTextShadow(),
+            .strokeColor: NSColor.black.withAlphaComponent(0.34),
+            .strokeWidth: -0.45
+        ]
+    }
+
+    private func readableTextShadow() -> NSShadow {
+        let shadow = NSShadow()
+        shadow.shadowColor = NSColor.black.withAlphaComponent(0.72)
+        shadow.shadowBlurRadius = 1.8
+        shadow.shadowOffset = NSSize(width: 0, height: -1)
+        return shadow
+    }
+
+    private func publishCompositionState() {
+        onCompositionStateChanged?(hasMarkedText())
+    }
+
+    override func setMarkedText(
+        _ string: Any,
+        selectedRange: NSRange,
+        replacementRange: NSRange
+    ) {
+        // Publish before and after AppKit updates the marked range. The first
+        // notification protects the glow even if this IME pauses without
+        // emitting another textDidChange event; the second captures an IME
+        // implementation that immediately commits an empty/finished mark.
+        onCompositionStateChanged?(true)
+        super.setMarkedText(
+            string,
+            selectedRange: selectedRange,
+            replacementRange: replacementRange
+        )
+        publishCompositionState()
+    }
+
+    override func unmarkText() {
+        super.unmarkText()
+        publishCompositionState()
+    }
+
     override func keyDown(with event: NSEvent) {
-        if event.keyCode == 53 {
-            onDismiss?()
+        NSLog("[VNPasteDiag] step1: keyDown keyCode=\(event.keyCode) modifiers=\(event.modifierFlags.rawValue) selfType=\(String(describing: type(of: self))) windowFirstResponderType=\(window?.firstResponder.map { String(describing: type(of: $0)) } ?? "nil") isSelfFirstResponder=\(window?.firstResponder === self)")
+        // 修复：NSTextView 默认的 key binding 在这类 NSPanel 中不会把 ⌘V
+        // 转换为 paste(_:)，这里显式处理，确保粘贴图片/文本都能到达 paste。
+        if event.keyCode == 9 && event.modifierFlags.contains(.command) && !event.modifierFlags.contains(.shift) {
+            NSLog("[VNPasteDiag] step1b: keyDown routes Cmd+V to paste explicitly")
+            paste(nil)
             return
         }
-        if event.keyCode == 36 && !event.modifierFlags.contains(.shift) {
-            // Return is how Chinese/Japanese/Korean input methods confirm a
-            // marked candidate. Let AppKit handle that composition before
-            // treating Return as the note's Save shortcut.
+        if event.keyCode == 53 {
+            // Escape first belongs to an active IME candidate session. Closing
+            // the whole panel here would discard both the candidate and draft.
             guard !hasMarkedText() else {
                 super.keyDown(with: event)
                 return
             }
+            onDismiss?()
+            return
+        }
+        if event.keyCode == 36 || event.keyCode == 76 {
+            // Return is how Chinese/Japanese/Korean input methods confirm a
+            // marked candidate. Let AppKit handle that composition before
+            // treating an unmodified Return as the note's Save shortcut.
+            guard !hasMarkedText() else {
+                super.keyDown(with: event)
+                return
+            }
+
+            // Shift+Return remains the explicit multiline escape hatch.
+            // AppKit's native text insertion preserves undo, selection and
+            // IME behavior, so do not synthesize a newline ourselves.
+            if event.modifierFlags.contains(.shift) {
+                super.keyDown(with: event)
+                return
+            }
+
             onCommit?()
             return
         }
         super.keyDown(with: event)
+    }
+
+    override func paste(_ sender: Any?) {
+        // 剪贴板里有图片时，把图片作为截图附件保存，而不是把图片塞进纯文本编辑器。
+        let pasteboard = NSPasteboard.general
+        NSLog("[VNPasteDiag] step2: paste entered selfType=\(String(describing: type(of: self))) firstResponderIsSelf=\(window?.firstResponder === self)")
+        NSLog("[VNPasteDiag] step3: paste types=\(pasteboard.types?.map(\.rawValue) ?? [])")
+
+        // AI may offer rendered HTML together with TeX plain text. Prefer
+        // readable text when present, retaining native selection and undo.
+        if pasteboard.availableType(from: [.fileURL]) == nil,
+           let text = ClipboardInputText.read(from: pasteboard), !text.isEmpty {
+            // Keep TeX intact for actual formula rendering when saving/copying.
+            insertText(text, replacementRange: selectedRange())
+            return
+        }
+
+        if let image = pasteboard.readObjects(
+            forClasses: [NSImage.self],
+            options: nil
+        )?.first as? NSImage {
+            NSLog("[VNPasteDiag] step4: readObjects got image=\(image.size.width)x\(image.size.height)")
+            onPasteImage?(image)
+            return
+        }
+
+        // 复制的是图片文件（例如在访达里复制了 PNG）时，也作为截图附件保存。
+        if let url = pasteboard.readObjects(
+            forClasses: [NSURL.self],
+            options: nil
+        )?.first as? URL,
+           let image = NSImage(contentsOf: url) {
+            NSLog("[VNPasteDiag] step4b: readObjects got file image: \(url.path)")
+            onPasteImage?(image)
+            return
+        }
+
+        NSLog("[VNPasteDiag] step4fail: no image from pasteboard, calling super.paste")
+        super.paste(sender)
+    }
+
+    override func cancelOperation(_ sender: Any?) {
+        if hasMarkedText() {
+            inputContext?.discardMarkedText()
+            return
+        }
+        onDismiss?()
     }
 
     override func draw(_ dirtyRect: NSRect) {
@@ -922,8 +1753,11 @@ final class InputNSTextView: NSTextView {
         NSAttributedString(
             string: "写下此刻的重点…",
             attributes: [
-                .foregroundColor: NSColor.placeholderTextColor,
-                .font: NSFont.systemFont(ofSize: 17)
+                .foregroundColor: NSColor.white.withAlphaComponent(0.76),
+                .font: Self.readableFont,
+                .shadow: readableTextShadow(),
+                .strokeColor: NSColor.black.withAlphaComponent(0.32),
+                .strokeWidth: -0.40
             ]
         ).draw(in: bounds)
     }
